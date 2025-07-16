@@ -1,11 +1,11 @@
 const PORT = process.env.PORT || 3000;
-const io = require('socket.io')(PORT, {
-
-    cors: {
-        origin: "*", // ou "*" para qualquer origem (não recomendado em produção)
-        methods: ["GET", "POST"]
-    }
+const io = require('socket.io')(3000, {
+  cors: {
+    origin: "https://davidruipinto-boop.github.io",
+    methods: ["GET", "POST"]
+  }
 });
+
 const users = {}
 
 io.on('connection', socket => {
