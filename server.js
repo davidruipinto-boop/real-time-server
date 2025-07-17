@@ -4,31 +4,29 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 
 const app = express();
-app.use(cors({ origin: "https://davidruipinto-boop.github.io" }));
-
 const server = http.createServer(app);
 
+// ✅ CORS para o Express
+app.use(cors({
+  origin: "https://davidruipinto-boop.github.io"
+}));
+
+// ✅ CORS para o Socket.IO
 const io = new Server(server, {
   cors: {
     origin: "https://davidruipinto-boop.github.io",
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
 const PORT = process.env.PORT || 3000;
-
 const users = {};
-
 
 io.on('connection', socket => {
   socket.on('new-user', name => {
     users[socket.id] = name;
-
-    // Notificar outros que alguém entrou
     socket.broadcast.emit('user-connected', name);
-
-    // Enviar a lista atualizada para todos
-    io.emit('update-user-list', Object.values(users));
   });
 
   socket.on('send-chat-message', message => {
@@ -43,22 +41,16 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    const name = users[socket.id];
+    socket.broadcast.emit('user-disconnected', users[socket.id]);
     delete users[socket.id];
-
-    socket.broadcast.emit('user-disconnected', name);
-
-    io.emit('update-user-list', Object.values(users));
   });
 });
 
-// Endpoint de teste opcional (só para verificar se o servidor responde)
+// Test endpoint
 app.get('/', (req, res) => {
-  res.send("Servidor Socket.IO está ativo");
+  res.send('Servidor Socket.IO está ativo');
 });
 
 server.listen(PORT, () => {
   console.log(`Servidor a correr na porta ${PORT}`);
 });
-
-
