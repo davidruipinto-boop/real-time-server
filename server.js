@@ -1,8 +1,9 @@
-
+const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 
+const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -19,12 +20,7 @@ const users = {};
 io.on('connection', socket => {
   socket.on('new-user', name => {
     users[socket.id] = name;
-
-    // Notificar outros que alguém entrou
     socket.broadcast.emit('user-connected', name);
-
-    // Enviar a lista atualizada para todos
-    io.emit('update-user-list', Object.values(users));
   });
 
   socket.on('send-chat-message', message => {
@@ -39,13 +35,14 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    const name = users[socket.id];
+    socket.broadcast.emit('user-disconected', users[socket.id]);
     delete users[socket.id];
-
-    socket.broadcast.emit('user-disconnected', name);
-
-    io.emit('update-user-list', Object.values(users));
   });
+});
+
+// Endpoint de teste opcional (só para verificar se o servidor responde)
+app.get('/', (req, res) => {
+  res.send("Servidor Socket.IO está ativo");
 });
 
 server.listen(PORT, () => {
