@@ -4,6 +4,8 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 
 const app = express();
+app.use(cors({ origin: "https://davidruipinto-boop.github.io" }));
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -35,7 +37,7 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    socket.broadcast.emit('user-disconected', users[socket.id]);
+    socket.broadcast.emit('user-disconnected', users[socket.id]);
     delete users[socket.id];
   });
 });
