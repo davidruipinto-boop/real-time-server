@@ -1,9 +1,8 @@
-const express = require('express');
+
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 
-const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -38,11 +37,6 @@ io.on('connection', socket => {
     socket.broadcast.emit('user-disconected', users[socket.id]);
     delete users[socket.id];
   });
-});
-
-// Endpoint de teste opcional (só para verificar se o servidor responde)
-app.get('/', (req, res) => {
-  res.send("Servidor Socket.IO está ativo");
 });
 
 server.listen(PORT, () => {
