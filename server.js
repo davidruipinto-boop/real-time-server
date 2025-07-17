@@ -18,7 +18,7 @@ io.on('connection', socket => {
     })
 
     socket.on('send-file', data => {
-        socket.broadcast.emit('file-message', data);
+        socket.broadcast.emit('file-message', {data: data, name:users[socket.id]});
     });
 
 
