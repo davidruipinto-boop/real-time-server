@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
-
+const typingUsers = new Set();
 const app = express();
 
 // ✅ CORS para o Express (necessário para polling funcionar corretamente)
@@ -35,6 +35,16 @@ io.on('connection', socket => {
     // Enviar a lista atualizada para todos
     io.emit('update-user-list', Object.values(users));
   });
+
+  socket.on('typing', name => {
+        typingUsers.add(name);
+        io.emit('update-typing', Array.from(typingUsers));
+    });
+
+    socket.on('stop-typing', name => {
+        typingUsers.delete(name);
+        io.emit('update-typing', Array.from(typingUsers));
+    });
 
   socket.on('send-chat-message', message => {
     socket.broadcast.emit('chat-message', {
